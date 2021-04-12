@@ -1,5 +1,6 @@
 import { Input } from 'phaser';
 import { getGameWidth, getGameHeight } from '../helpers';
+import ScoreLabel from '../ui/score-label';
 
 const sceneConfig: Phaser.Types.Scenes.SettingsConfig = {
   active: false,
@@ -13,6 +14,7 @@ export class GameScene extends Phaser.Scene {
 
   private cursorKeys: Phaser.Types.Input.Keyboard.CursorKeys;
   private player: Phaser.Physics.Arcade.Sprite;
+  private scoreLabel: ScoreLabel;
 
   constructor() {
     super(sceneConfig);
@@ -20,8 +22,10 @@ export class GameScene extends Phaser.Scene {
 
   public create(): void {
     this.player = this.createPlayer();
-    const net = this.createNet();
-    this.physics.add.collider(this.player, net);
+    const net = this.createNet().rotate(1.5708);
+    const ground = this.createGround();
+    this.physics.add.collider(this.player, [net, ground]);
+    this.scoreLabel = this.createScoreLabel(16, 16, 0);
     // This is a nice helper Phaser provides to create listeners for some of the most common keys.
     this.cursorKeys = this.input.keyboard.createCursorKeys();
   }
@@ -56,9 +60,32 @@ export class GameScene extends Phaser.Scene {
   }
 
   private createNet() {
-    const net = this.physics.add.staticGroup();
-    net.create(getGameWidth(this) / 2 - 2, getGameHeight(this)).setScale(1).refreshBody;
+    const net = this.physics.add.staticGroup({
+      setRotation: {
+        value: 1.5708,
+      },
+    });
+    net.create(getGameWidth(this) / 2 - 2, getGameHeight(this), 'ground');
     return net;
+  }
+
+  private createGround() {
+    const platforms = this.physics.add.staticGroup();
+
+    const ground = platforms.create(0, getGameHeight(this), 'ground');
+
+    //  This stops it from falling away when you jump on it
+    ground.body.immovable = true;
+
+    return ground;
+  }
+
+  private createScoreLabel(x: number, y: number, score: number) {
+    const style = { fontSize: '32px', fill: '#fff' };
+    const label = new ScoreLabel(this, x, y, score, style);
+
+    this.add.existing(label);
+    return label;
   }
 
   public update(): void {
@@ -77,6 +104,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     if (this.cursorKeys.up.isDown && this.player.body.touching.down) {
+      this.scoreLabel.add(1);
       this.player.setVelocityY(-this.jumpVelocity);
     }
   }

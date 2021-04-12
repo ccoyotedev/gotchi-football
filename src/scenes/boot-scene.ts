@@ -71,11 +71,11 @@ export class BootScene extends Phaser.Scene {
    */
   private loadAssets() {
     // Load sample assets
-
-    // Source: Open Game Art
     this.load.spritesheet('character', 'assets/sprites/ghostSheet.png', {
       frameWidth: 576 / 12,
       frameHeight: 384 / 8,
     });
+
+    this.load.image('ground', 'assets/platform.png');
   }
 }
