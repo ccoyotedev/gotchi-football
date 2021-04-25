@@ -19,7 +19,7 @@ export default class VolleyballSpawner {
       '',
       { shape: shapes['volleyball'] } as MyMatterBodyConfig,
     );
-    volleyball.setBounce(1.2);
+    volleyball.setBounce(1);
     volleyball.setVelocity(Phaser.Math.Between(-10, 10), -5);
 
     return volleyball;

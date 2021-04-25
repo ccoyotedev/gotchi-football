@@ -6,9 +6,9 @@
 		"isStatic": false,
 		"density": 0.1,
 		"restitution": 0,
-		"friction": 0.1,
-		"frictionAir": 0.01,
-		"frictionStatic": 0.5,
+		"friction": 0,
+		"frictionAir": 0,
+		"frictionStatic": 0,
 		"collisionFilter": {
 			"group": 0,
 			"category": 1,
@@ -30,10 +30,10 @@
 		"type": "fromPhysicsEditor",
 		"label": "ghst-front",
 		"isStatic": false,
-		"density": 0.1,
+		"density": 10,
 		"restitution": 0,
-		"friction": 0.10000000149011612,
-		"frictionAir": 0.009999999776482582,
+		"friction": 0.1,
+		"frictionAir": 0.01,
 		"frictionStatic": 0.5,
 		"collisionFilter": {
 			"group": 0,
@@ -44,17 +44,8 @@
 			{
 				"label": "",
 				"isSensor": false,
-				"circle": {
-					"x": 24.954686673636843,
-					"y": 13.794068843821925,
-					"radius": 9.97822493086104
-				}
-			},
-			{
-				"label": "",
-				"isSensor": false,
 				"vertices": [
-					[ { "x":15, "y":14 }, { "x":15, "y":40 }, { "x":35, "y":40 }, { "x":35, "y":14 } ]
+					[ { "x":35, "y":40 }, { "x":35, "y":12 }, { "x":30, "y":5 }, { "x":20, "y":5 }, { "x":15, "y":12 }, { "x":15, "y":40 } ]
 				]
 			}
 		]
@@ -63,7 +54,7 @@
 		"type": "fromPhysicsEditor",
 		"label": "ghst-left",
 		"isStatic": false,
-		"density": 0.1,
+		"density": 2,
 		"restitution": 0,
 		"friction": 0.10000000149011612,
 		"frictionAir": 0.009999999776482582,
@@ -77,17 +68,8 @@
 			{
 				"label": "",
 				"isSensor": false,
-				"circle": {
-					"x": 19.90937334727367,
-					"y": 14.102965578089055,
-					"radius": 9.97822493086104
-				}
-			},
-			{
-				"label": "",
-				"isSensor": false,
 				"vertices": [
-					[ { "x":10, "y":14 }, { "x":10, "y":40 }, { "x":30, "y":40 }, { "x":30, "y":14 } ]
+					[ { "x":30, "y":40 }, { "x":30, "y":12 }, { "x":25, "y":5 }, { "x":15, "y":5 }, { "x":10, "y":12 }, { "x":10, "y":40 } ]
 				]
 			}
 		]
@@ -96,7 +78,7 @@
 		"type": "fromPhysicsEditor",
 		"label": "ghst-right",
 		"isStatic": false,
-		"density": 0.30000000000000004,
+		"density": 2,
 		"restitution": 0,
 		"friction": 0.10000000149011612,
 		"frictionAir": 0.009999999776482582,
@@ -110,17 +92,8 @@
 			{
 				"label": "",
 				"isSensor": false,
-				"circle": {
-					"x": 30,
-					"y": 14.000000000000014,
-					"radius": 9.97822493086104
-				}
-			},
-			{
-				"label": "",
-				"isSensor": false,
 				"vertices": [
-					[ { "x":20, "y":14 }, { "x":20, "y":40 }, { "x":40, "y":40 }, { "x":40, "y":14 } ]
+					[ { "x":40, "y":40 }, { "x":40, "y":12 }, { "x":35, "y":5 }, { "x":25, "y":5 }, { "x":20, "y":12 }, { "x":20, "y":40 } ]
 				]
 			}
 		]
