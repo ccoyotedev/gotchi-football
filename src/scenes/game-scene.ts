@@ -15,6 +15,7 @@ export class GameScene extends Phaser.Scene {
 
   private cursorKeys: Phaser.Types.Input.Keyboard.CursorKeys;
   private player: Player;
+  private volleyball: Phaser.Physics.Matter.Sprite;
   private scoreLabel: ScoreLabel;
   private volleyballSpawner: VolleyballSpawner;
   private playerSpawner: PlayerSpawner;
@@ -27,17 +28,22 @@ export class GameScene extends Phaser.Scene {
     this.matter.world.setBounds(0, -200, getGameWidth(this), getGameHeight(this) + 200);
     this.volleyballSpawner = new VolleyballSpawner(this, 'volleyball');
     this.playerSpawner = new PlayerSpawner(this, 'character');
-    const volleyball = this.volleyballSpawner.spawn();
+    this.volleyball = this.volleyballSpawner.spawn();
     this.player = this.playerSpawner.spawn();
     this.matter.body.setInertia(this.player.body as MatterJS.BodyType, Infinity);
-    this.matter.body.setInertia(volleyball.body as MatterJS.BodyType, Infinity);
     this.scoreLabel = this.createScoreLabel(16, 16, 0);
     // This is a nice helper Phaser provides to create listeners for some of the most common keys.
     this.cursorKeys = this.input.keyboard.createCursorKeys();
 
     this.matter.world.on('collisionactive', () => {
       this.player.isTouchingGround = true;
+      this.player.downBoost = 1;
     });
+
+    this.matter.setCollisionGroup(
+      [this.player.body as MatterJS.BodyType, this.volleyball.body as MatterJS.BodyType],
+      1,
+    );
   }
 
   private createScoreLabel(x: number, y: number, score: number) {
@@ -67,6 +73,12 @@ export class GameScene extends Phaser.Scene {
       this.scoreLabel.add(1);
       this.player.isTouchingGround = false;
       this.player.setVelocityY(-this.jumpVelocity);
+    }
+
+    if (this.cursorKeys.down.isDown && !this.player.isTouchingGround && this.player.downBoost > 0) {
+      this.scoreLabel.add(1);
+      this.player.downBoost--;
+      this.player.setVelocityY(10);
     }
   }
 }

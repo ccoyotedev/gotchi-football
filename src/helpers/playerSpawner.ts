@@ -4,6 +4,7 @@ import { MyMatterBodyConfig } from '../types';
 export type Player = Phaser.Physics.Matter.Sprite & {
   sayHello?: () => void;
   isTouchingGround?: boolean;
+  downBoost: 1 | 0;
 };
 
 export default class PlayerSpawner {
@@ -33,11 +34,13 @@ export default class PlayerSpawner {
       {
         shape: shapes['ghst-front'],
         density: Infinity,
+        restitution: 1,
       } as MyMatterBodyConfig,
     ) as Player;
 
-    player.setScale(2, 2);
-    player.setBounce(0.2);
+    player.setBounce(0);
+    player.setScale(2.5);
+    player.downBoost = 1;
 
     return player;
   };

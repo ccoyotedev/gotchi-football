@@ -16,7 +16,7 @@
 		},
 		"fixtures": [
 			{
-				"label": "",
+				"label": "ball",
 				"isSensor": false,
 				"circle": {
 					"x": 30.202324806295827,
@@ -42,7 +42,7 @@
 		},
 		"fixtures": [
 			{
-				"label": "",
+				"label": "ghst-front",
 				"isSensor": false,
 				"vertices": [
 					[ { "x":35, "y":40 }, { "x":35, "y":12 }, { "x":30, "y":5 }, { "x":20, "y":5 }, { "x":15, "y":12 }, { "x":15, "y":40 } ]
