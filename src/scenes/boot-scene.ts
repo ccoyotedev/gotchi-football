@@ -78,6 +78,7 @@ export class BootScene extends Phaser.Scene {
 
     this.load.image('ground', 'assets/platform.png');
     this.load.image('volleyball', 'assets/volleyball.png');
+    this.load.image('kick', 'assets/volleyball.png');
     this.load.json('shapes', 'assets/shapes.json');
   }
 }
