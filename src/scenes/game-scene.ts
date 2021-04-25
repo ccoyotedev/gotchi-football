@@ -32,7 +32,11 @@ export class GameScene extends Phaser.Scene {
   }
 
   public create(): void {
-    this.matter.world.setBounds(0, -200, getGameWidth(this), getGameHeight(this) + 200);
+    // Create scene
+    this.matter.world.setBounds(0, -200, getGameWidth(this), getGameHeight(this) + 200 - 75);
+    this.add.image(getGameWidth(this) / 2, getGameHeight(this) / 2, 'bg');
+    this.add.image(getGameWidth(this) / 2, getGameHeight(this) - 37.5, 'ground').setScale(2.5, 1);
+
     // Create player
     this.playerSpawner = new PlayerSpawner(this, 'character');
     this.player = this.playerSpawner.spawn();
@@ -51,7 +55,7 @@ export class GameScene extends Phaser.Scene {
     this.cursorKeys = this.input.keyboard.createCursorKeys();
     this.spaceKey = this.input.keyboard.addKey('SPACE');
 
-    this.matter.world.on('collisionactive', () => {
+    this.matter.world.on('collisionactive', (event) => {
       this.player.isTouchingGround = true;
       this.player.downBoost = 1;
     });
@@ -90,10 +94,11 @@ export class GameScene extends Phaser.Scene {
         shape: shapes['volleyball'],
       } as MyMatterBodyConfig);
       this.kick.setVelocityX(velocityX);
+
       setTimeout(() => {
         this.kick.destroy();
         this.kick = undefined;
-      }, 200);
+      }, 220);
     }
   }
 

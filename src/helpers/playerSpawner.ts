@@ -28,7 +28,7 @@ export default class PlayerSpawner {
 
     const player = this.scene.matter.add.sprite(
       getGameWidth(this.scene) / 4,
-      getGameHeight(this.scene) - 50,
+      getGameHeight(this.scene) - 100,
       this.key,
       '',
       {
