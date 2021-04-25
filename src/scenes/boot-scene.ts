@@ -1,4 +1,4 @@
-import { getGameWidth, getGameHeight } from '../helpers';
+import { getGameWidth, getGameHeight } from '../utils/helpers';
 
 const sceneConfig: Phaser.Types.Scenes.SettingsConfig = {
   active: false,
@@ -77,5 +77,6 @@ export class BootScene extends Phaser.Scene {
     });
 
     this.load.image('ground', 'assets/platform.png');
+    this.load.image('volleyball', 'assets/volleyball.png');
   }
 }

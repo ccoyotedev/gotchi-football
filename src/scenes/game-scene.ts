@@ -1,5 +1,5 @@
-import { Input } from 'phaser';
-import { getGameWidth, getGameHeight } from '../helpers';
+import { getGameWidth, getGameHeight } from '../utils/helpers';
+import VolleyballSpawner from '../helpers/volleyballSpawner';
 import ScoreLabel from '../ui/score-label';
 
 const sceneConfig: Phaser.Types.Scenes.SettingsConfig = {
@@ -15,16 +15,19 @@ export class GameScene extends Phaser.Scene {
   private cursorKeys: Phaser.Types.Input.Keyboard.CursorKeys;
   private player: Phaser.Physics.Arcade.Sprite;
   private scoreLabel: ScoreLabel;
+  private volleyballSpawner: VolleyballSpawner;
 
   constructor() {
     super(sceneConfig);
   }
 
   public create(): void {
+    this.volleyballSpawner = new VolleyballSpawner(this, 'volleyball');
     this.player = this.createPlayer();
     const net = this.createNet().rotate(1.5708);
     const ground = this.createGround();
-    this.physics.add.collider(this.player, [net, ground]);
+    const ball = this.volleyballSpawner.spawn();
+    this.physics.add.collider(this.player, [net, ground, ball]);
     this.scoreLabel = this.createScoreLabel(16, 16, 0);
     // This is a nice helper Phaser provides to create listeners for some of the most common keys.
     this.cursorKeys = this.input.keyboard.createCursorKeys();
