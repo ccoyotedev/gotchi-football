@@ -1,4 +1,5 @@
 import { getGameWidth, getGameHeight } from '../utils/helpers';
+import { MyMatterBodyConfig } from '../types';
 import VolleyballSpawner from '../helpers/volleyballSpawner';
 import ScoreLabel from '../ui/score-label';
 
@@ -9,11 +10,11 @@ const sceneConfig: Phaser.Types.Scenes.SettingsConfig = {
 };
 
 export class GameScene extends Phaser.Scene {
-  public speed = 200;
-  public jumpVelocity = 600;
+  public speed = 5;
+  public jumpVelocity = 10;
 
   private cursorKeys: Phaser.Types.Input.Keyboard.CursorKeys;
-  private player: Phaser.Physics.Arcade.Sprite;
+  private player: Phaser.Physics.Matter.Sprite;
   private scoreLabel: ScoreLabel;
   private volleyballSpawner: VolleyballSpawner;
 
@@ -22,21 +23,29 @@ export class GameScene extends Phaser.Scene {
   }
 
   public create(): void {
+    this.matter.world.setBounds(0, 0, getGameWidth(this), getGameHeight(this));
+    console.log(this.matter);
     this.volleyballSpawner = new VolleyballSpawner(this, 'volleyball');
     this.player = this.createPlayer();
-    const net = this.createNet().rotate(1.5708);
-    const ground = this.createGround();
-    const ball = this.volleyballSpawner.spawn();
-    this.physics.add.collider(this.player, [net, ground, ball]);
+    const volleyball = this.volleyballSpawner.spawn();
+    this.matter.body.setInertia(this.player.body as MatterJS.BodyType, Infinity);
+    this.matter.body.setInertia(volleyball.body as MatterJS.BodyType, Infinity);
+
+
     this.scoreLabel = this.createScoreLabel(16, 16, 0);
     // This is a nice helper Phaser provides to create listeners for some of the most common keys.
     this.cursorKeys = this.input.keyboard.createCursorKeys();
   }
 
   private createPlayer() {
-    const player = this.physics.add.sprite(getGameWidth(this) / 2, getGameHeight(this) - 200, 'character');
+    const shapes = this.cache.json.get('shapes');
+
+    const player = this.matter.add.sprite(getGameWidth(this) / 4, getGameHeight(this) - 50, 'character', '', {
+      shape: shapes['ghst-front'],
+      density: 100000,
+    } as MyMatterBodyConfig);
+    player.setScale(2, 2);
     player.setBounce(0.2);
-    player.setCollideWorldBounds(true);
 
     this.anims.create({
       key: 'left',
@@ -62,27 +71,6 @@ export class GameScene extends Phaser.Scene {
     return player;
   }
 
-  private createNet() {
-    const net = this.physics.add.staticGroup({
-      setRotation: {
-        value: 1.5708,
-      },
-    });
-    net.create(getGameWidth(this) / 2 - 2, getGameHeight(this), 'ground');
-    return net;
-  }
-
-  private createGround() {
-    const platforms = this.physics.add.staticGroup();
-
-    const ground = platforms.create(0, getGameHeight(this), 'ground');
-
-    //  This stops it from falling away when you jump on it
-    ground.body.immovable = true;
-
-    return ground;
-  }
-
   private createScoreLabel(x: number, y: number, score: number) {
     const style = { fontSize: '32px', fill: '#fff' };
     const label = new ScoreLabel(this, x, y, score, style);
@@ -106,7 +94,7 @@ export class GameScene extends Phaser.Scene {
         this.player.anims.play('turn', true);
     }
 
-    if (this.cursorKeys.up.isDown && this.player.body.touching.down) {
+    if (this.cursorKeys.up.isDown) {
       this.scoreLabel.add(1);
       this.player.setVelocityY(-this.jumpVelocity);
     }
