@@ -3,12 +3,23 @@ import { MyMatterBodyConfig } from '../types';
 import VolleyballSpawner from '../helpers/volleyballSpawner';
 import PlayerSpawner, { Player } from '../helpers/playerSpawner';
 import ScoreLabel from '../ui/score-label';
+import GoalText from '../ui/goalText';
 
 const sceneConfig: Phaser.Types.Scenes.SettingsConfig = {
   active: false,
   visible: false,
   key: 'Game',
 };
+
+interface Goal {
+  post: Phaser.Physics.Matter.Sprite;
+  bounds: {
+    x_min: number;
+    x_max: number;
+    y_min: number;
+    y_max: number;
+  };
+}
 
 export class GameScene extends Phaser.Scene {
   public speed = 7;
@@ -17,13 +28,19 @@ export class GameScene extends Phaser.Scene {
   private cursorKeys: Phaser.Types.Input.Keyboard.CursorKeys;
   private player: Player;
   private volleyball: Phaser.Physics.Matter.Sprite;
-  private scoreLabel: ScoreLabel;
   private volleyballSpawner: VolleyballSpawner;
   private playerSpawner: PlayerSpawner;
   private spaceKey: Phaser.Input.Keyboard.Key;
   private kick: Phaser.Physics.Matter.Sprite;
-  private playerOneGoal: Phaser.Physics.Matter.Sprite;
-  private playerTwoGoal: Phaser.Physics.Matter.Sprite;
+  private playerOneGoal: Goal;
+  private playerTwoGoal: Goal;
+
+  // Scores
+  private playerOneScoreLabel: ScoreLabel;
+  private playerTwoScoreLabel: ScoreLabel;
+
+  private goalScored: boolean;
+  private goalText: GoalText;
 
   // Categories
   private playerCat: number;
@@ -56,7 +73,10 @@ export class GameScene extends Phaser.Scene {
     this.volleyballCat = this.matter.world.nextCategory();
     this.volleyball.setCollisionCategory(this.volleyballCat);
 
-    this.scoreLabel = this.createScoreLabel(16, 16, 0);
+    // Create scoreboard
+    this.playerOneScoreLabel = this.createScoreLabel(getGameWidth(this) / 4, 32, 0);
+    this.playerTwoScoreLabel = this.createScoreLabel((3 * getGameWidth(this)) / 4 - 32, 32, 0);
+
     // This is a nice helper Phaser provides to create listeners for some of the most common keys.
     this.cursorKeys = this.input.keyboard.createCursorKeys();
     this.spaceKey = this.input.keyboard.addKey('SPACE');
@@ -73,16 +93,16 @@ export class GameScene extends Phaser.Scene {
   }
 
   private createScoreLabel(x: number, y: number, score: number) {
-    const style = { fontSize: '32px', fill: '#fff' };
+    const style = { fontSize: '72px', fill: '#fff', backgroundColor: '#000' };
     const label = new ScoreLabel(this, x, y, score, style);
 
     this.add.existing(label);
     return label;
   }
 
-  private createGoal(player: 1 | 2) {
+  private createGoal(player: 1 | 2): Goal {
     const shapes = this.cache.json.get('shapes');
-    const goal = this.matter.add.sprite(
+    const post = this.matter.add.sprite(
       player === 1 ? 0 : getGameWidth(this),
       (3 * getGameHeight(this)) / 5,
       'bar',
@@ -91,9 +111,19 @@ export class GameScene extends Phaser.Scene {
         shape: shapes['bar'],
       } as MyMatterBodyConfig,
     );
-    goal.setScale(2);
+    post.setScale(2);
 
-    return goal;
+    const bounds = {
+      x_min: player === 1 ? 0 : getGameWidth(this) - post.width / 2,
+      x_max: player === 1 ? post.width / 2 : getGameWidth(this),
+      y_min: (3 * getGameHeight(this)) / 5,
+      y_max: getGameHeight(this),
+    };
+
+    return {
+      post,
+      bounds,
+    };
   }
 
   public handleKick(player: Player, direction: 'left' | 'right'): void {
@@ -124,7 +154,50 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
+  private handleGoalScored() {
+    this.goalScored = true;
+    const style = { fontSize: '144px', fill: '#fff', boundsAlignH: 'center', boundsAlignV: 'middle' };
+    const label = new GoalText(this, getGameWidth(this) / 2, getGameHeight(this) / 2, style).setOrigin(0.5);
+
+    this.add.existing(label);
+    this.goalText = label;
+
+    setTimeout(() => {
+      this.volleyball.destroy();
+      this.volleyball = this.volleyballSpawner.spawn();
+      this.volleyball.setCollisionCategory(this.volleyballCat);
+      this.goalScored = false;
+      this.goalText.destroy();
+    }, 3000);
+  }
+
+  private isGoal() {
+    if (
+      this.volleyball.x < this.playerOneGoal.bounds.x_max &&
+      this.volleyball.x > this.playerOneGoal.bounds.x_min &&
+      this.volleyball.y < this.playerOneGoal.bounds.y_max &&
+      this.volleyball.y > this.playerOneGoal.bounds.y_min
+    ) {
+      this.playerTwoScoreLabel.add(1);
+      this.handleGoalScored();
+    }
+
+    if (
+      this.volleyball.x < this.playerTwoGoal.bounds.x_max &&
+      this.volleyball.x > this.playerTwoGoal.bounds.x_min &&
+      this.volleyball.y < this.playerTwoGoal.bounds.y_max &&
+      this.volleyball.y > this.playerTwoGoal.bounds.y_min
+    ) {
+      this.playerOneScoreLabel.add(1);
+      this.handleGoalScored();
+    }
+  }
+
   public update(): void {
+    if (!this.goalScored) {
+      this.isGoal();
+    }
+
     switch (true) {
       case this.cursorKeys.left.isDown:
         this.player.setVelocityX(-this.speed);
@@ -140,13 +213,11 @@ export class GameScene extends Phaser.Scene {
     }
 
     if (this.cursorKeys.up.isDown && this.player.isTouchingGround) {
-      this.scoreLabel.add(1);
       this.player.isTouchingGround = false;
       this.player.setVelocityY(-this.jumpVelocity);
     }
 
     if (this.cursorKeys.down.isDown && !this.player.isTouchingGround && this.player.downBoost > 0) {
-      this.scoreLabel.add(1);
       this.player.downBoost--;
       this.player.setVelocityY(10);
     }

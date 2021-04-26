@@ -1,4 +1,4 @@
-const formatScore = (score: number) => `Score: ${score}`;
+const formatScore = (score: number) => `${score}`;
 
 export default class ScoreLabel extends Phaser.GameObjects.Text {
   score: number;
