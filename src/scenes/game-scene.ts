@@ -22,6 +22,8 @@ export class GameScene extends Phaser.Scene {
   private playerSpawner: PlayerSpawner;
   private spaceKey: Phaser.Input.Keyboard.Key;
   private kick: Phaser.Physics.Matter.Sprite;
+  private playerOneGoal: Phaser.Physics.Matter.Sprite;
+  private playerTwoGoal: Phaser.Physics.Matter.Sprite;
 
   // Categories
   private playerCat: number;
@@ -36,6 +38,10 @@ export class GameScene extends Phaser.Scene {
     this.matter.world.setBounds(0, -200, getGameWidth(this), getGameHeight(this) + 200 - 75);
     this.add.image(getGameWidth(this) / 2, getGameHeight(this) / 2, 'bg');
     this.add.image(getGameWidth(this) / 2, getGameHeight(this) - 37.5, 'ground').setScale(2.5, 1);
+
+    // Create goals
+    this.playerOneGoal = this.createGoal(1);
+    this.playerTwoGoal = this.createGoal(2);
 
     // Create player
     this.playerSpawner = new PlayerSpawner(this, 'character');
@@ -55,7 +61,7 @@ export class GameScene extends Phaser.Scene {
     this.cursorKeys = this.input.keyboard.createCursorKeys();
     this.spaceKey = this.input.keyboard.addKey('SPACE');
 
-    this.matter.world.on('collisionactive', (event) => {
+    this.matter.world.on('collisionactive', () => {
       this.player.isTouchingGround = true;
       this.player.downBoost = 1;
     });
@@ -72,6 +78,22 @@ export class GameScene extends Phaser.Scene {
 
     this.add.existing(label);
     return label;
+  }
+
+  private createGoal(player: 1 | 2) {
+    const shapes = this.cache.json.get('shapes');
+    const goal = this.matter.add.sprite(
+      player === 1 ? 0 : getGameWidth(this),
+      (3 * getGameHeight(this)) / 5,
+      'bar',
+      '',
+      {
+        shape: shapes['bar'],
+      } as MyMatterBodyConfig,
+    );
+    goal.setScale(2);
+
+    return goal;
   }
 
   public handleKick(player: Player, direction: 'left' | 'right'): void {
